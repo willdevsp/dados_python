@@ -1,4 +1,7 @@
+import datetime
 import uuid
+
+import dateutil.utils
 import pyarrow as pa
 import pyarrow.parquet as pq
 
@@ -19,9 +22,12 @@ try:
     print(df)
 
     df["id_binary"] = list(map(lambda x: str(uuid.UUID(int=int.from_bytes(x))), df["id_binary"]))
+    df["ano"] = dateutil.utils.today().strftime("%y")
+    df["mes"] = dateutil.utils.today().strftime("%m")
+    df["dia"] = dateutil.utils.today().strftime("%d")
     print(df)
 
-    df.to_parquet('df.parquet',
+    df.to_parquet('df.parquet', partition_cols=["ano", "mes", "dia"],
                   compression='gzip')
 
     df_parquet = pd.read_parquet('df.parquet')
