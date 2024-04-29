@@ -12,9 +12,6 @@ import pandas as pd
 try:
     mydb = create_engine('mysql+mysqlconnector://root:password@127.0.0.1:3306/nome_banco', echo=True)
 
-    print(uuid.uuid4())
-
-    #mydb = connection.connect(host="localhost", database = 'nome_banco',user="root", passwd="password",use_pure=True)
     query = "Select * from pessoa;"
     result_dataFrame = pd.read_sql(query, mydb)
     df = pd.DataFrame(result_dataFrame)
@@ -27,8 +24,7 @@ try:
     df["dia"] = dateutil.utils.today().strftime("%d")
     print(df)
 
-    df.to_parquet('df.parquet', partition_cols=["ano", "mes", "dia"],
-                  compression='gzip')
+    df.to_parquet('df.parquet', partition_cols=["ano", "mes", "dia"])
 
     df_parquet = pd.read_parquet('df.parquet')
 
