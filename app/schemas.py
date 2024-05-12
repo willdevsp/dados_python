@@ -8,35 +8,32 @@ def getSchemas():
 
         query = "show tables;"
 
-
         with mydb.connect() as conn:
             result = conn.execute(text(query))
-            for row in result:
-                tabelas.append({"nome": row[0]})
+            tabelas = [{"nome": row[0]} for row in result]
 
             for tabela in tabelas:
                 sql = f'desc {tabela["nome"]}'
                 resultCampos = conn.execute(text(sql))
-
-                campos = []
-                for campo in resultCampos:
-                    j = {
-                        "Field": campo[0],
-                        "Type": campo[1],
-                        "Null": campo[2],
-                        "Key": campo[3],
-                        "Default": str(campo[4]),
-                        "Extra": campo[5]
-                    }
-                    print(j)
-                    campos.append(j)
-
+                campos = [configuracaoObjeto(campo) for campo in resultCampos]
                 tabela["campos"] = campos
+            print(tabelas)
     except Exception as e:
         conn.close()
         print('ERRO',str(e))
+    finally:
+        conn.close()
 
     return tabelas
 
+def configuracaoObjeto(campo):
+    return {
+                "Field": campo[0],
+                "Type": campo[1],
+                "Null": campo[2],
+                "Key": campo[3],
+                "Default": str(campo[4]),
+                "Extra": campo[5]
+            }
 
 getSchemas()
