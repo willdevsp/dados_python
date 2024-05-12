@@ -1,9 +1,10 @@
 import datetime
 import uuid
-
+import logging
 import dateutil.utils
 import pyarrow as pa
 import pyarrow.parquet as pq
+import datetime as dt
 
 from sqlalchemy import create_engine
 import codecs
@@ -18,13 +19,21 @@ try:
 
     print(df)
 
-    df["id_binary"] = list(map(lambda x: str(uuid.UUID(int=int.from_bytes(x))), df["id_binary"]))
-    df["ano"] = dateutil.utils.today().strftime("%y")
-    df["mes"] = dateutil.utils.today().strftime("%m")
-    df["dia"] = dateutil.utils.today().strftime("%d")
-    print(df)
 
-    df.to_parquet('df.parquet', partition_cols=["ano", "mes", "dia"])
+
+    df["id_binary"] = list(map(lambda x: str(uuid.UUID(int=int.from_bytes(x, 'big'))), df["id_binary"]))
+    today = dateutil.utils.today()
+    delta = dt.timedelta(days=1)
+    umdiaantes = today - delta
+    print(today)
+    print(umdiaantes)
+
+    anomesdia = umdiaantes.strftime("%y%m%d")
+    print(anomesdia)
+    df["anomesdia"] = anomesdia
+
+
+    df.to_parquet('df.parquet', partition_cols=["anomesdia"])
 
     df_parquet = pd.read_parquet('df.parquet')
 
